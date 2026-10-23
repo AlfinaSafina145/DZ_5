@@ -5,127 +5,116 @@ namespace MyApp
 {
     internal class Program
     {
-        static void Shuffle(List<string> list) //#1
+        static void Shuffle(List<string> list)
         {
-            Random range = new Random();
-            int n = list.Count;
-            while (n > 1)
+            Random rnd = new Random();
+            for (int i = list.Count - 1; i > 0; i--)
             {
-                int k = range.Next(n--);
-                var value = list[n];
-                list[n] = list[k];
-                list[k] = value;
+                int j = rnd.Next(i + 1);
+                string temp = list[i];
+                list[i] = list[j];
+                list[j] = temp;
             }
         }
-
-        static void AddNewStudent(string[,] students, int studentCount) //СОЗДАНИЕ СТУДЕНТА
+        static void AddNewStudent(string[,] students, int count)
         {
-            Console.Write("Введите фамилию: ");
-            students[studentCount, 0] = Console.ReadLine();
-
-            Console.Write("Введите имя: ");
-            students[studentCount, 1] = Console.ReadLine();
-
-            Console.Write("Введите год рождения: ");
-            students[studentCount, 2] = Console.ReadLine();
-
-            Console.Write("Введите экзамен: ");
-            students[studentCount, 3] = Console.ReadLine();
-
-            Console.Write("Введите баллы: ");
-            students[studentCount, 4] = Console.ReadLine();
-
-            Console.WriteLine("Студент добавлен.");
+            Console.Write("Фамилия: ");
+            students[count, 0] = Console.ReadLine();
+            Console.Write("Имя: ");
+            students[count, 1] = Console.ReadLine();
+            Console.Write("Год рождения: ");
+            students[count, 2] = Console.ReadLine();
+            Console.Write("Название экзамена: ");
+            students[count, 3] = Console.ReadLine();
+            Console.Write("Количество баллов: ");
+            students[count, 4] = Console.ReadLine();
+            Console.WriteLine("-> Данные успешно сохранены.");
         }
 
-        static void RemoveStudent(string[,] students, ref int studentCount) //УДАЛЕНИЕ СТУДЕНТА
+        static void RemoveStudent(string[,] students, ref int count)
         {
-            Console.Write("Введите фамилию: ");
-            string lastName = Console.ReadLine();
-            Console.Write("Введите имя: ");
-            string firstName = Console.ReadLine();
+            Console.Write("Введите фамилию для удаления: ");
+            string surname = Console.ReadLine();
+            Console.Write("Введите имя для удаления: ");
+            string name = Console.ReadLine();
 
-            for (int i = 0; i < studentCount; i++)
+            for (int i = 0; i < count; i++)
             {
-                if (students[i, 0].Equals(lastName, StringComparison.OrdinalIgnoreCase) && //сравнения строк с учетом регистра
-                    students[i, 1].Equals(firstName, StringComparison.OrdinalIgnoreCase))
+                if (students[i, 0].ToLower() == surname.ToLower() &&
+                    students[i, 1].ToLower() == name.ToLower())
                 {
-                    for (int j = i; j < studentCount - 1; j++)// Сдвигаем оставшихся студентов влево
+                    for (int j = i; j < count - 1; j++)
                     {
                         for (int k = 0; k < 5; k++)
                         {
                             students[j, k] = students[j + 1, k];
                         }
                     }
-                    studentCount--;
-                    Console.WriteLine("Студент удален.");
+                    count--;
+                    Console.WriteLine("-> Студент удален из базы.");
                     return;
                 }
             }
-            Console.WriteLine("Студент не найден.");
+            Console.WriteLine("-> Студент с такими данными не найден.");
         }
 
-        static void SortStudents(string[,] students, int studentCount) //СОРТИРОВКА СТУДЕНТОВ
+        static void SortStudents(string[,] students, int count)
         {
-            for (int i = 0; i < studentCount - 1; i++)
+            for (int i = 0; i < count - 1; i++)
             {
-                for (int j = i + 1; j < studentCount; j++)
+                for (int j = i + 1; j < count; j++)
                 {
-                    int scoreI, scoreJ; // Переменные для хранения оценок
-                    bool isScoreIValid = int.TryParse(students[i, 4], out scoreI);
-                    bool isScoreJValid = int.TryParse(students[j, 4], out scoreJ);
-                    if (isScoreIValid && isScoreJValid && scoreI > scoreJ) // Если преобразование успешно и оценка первого студента больше второй
+                    int score1, score2;
+                    if (int.TryParse(students[i, 4], out score1) && int.TryParse(students[j, 4], out score2))
                     {
-
-                        for (int k = 0; k < 5; k++)
+                        if (score1 > score2)
                         {
-                            string temp = students[i, k];
-                            students[i, k] = students[j, k];
-                            students[j, k] = temp;
+                            for (int k = 0; k < 5; k++)
+                            {
+                                string tmp = students[i, k];
+                                students[i, k] = students[j, k];
+                                students[j, k] = tmp;
+                            }
                         }
                     }
                 }
             }
-            Console.WriteLine("Студенты отсортированы по баллам:");
+            Console.WriteLine("-> Сортировка завершена (по возрастанию баллов).");
         }
 
-        static void DisplayStudents(string[,] students, int studentCount) //СПИСОК СТУДЕНТОВ
+        static void DisplayStudents(string[,] students, int count)
         {
-            Console.WriteLine("Список студентов:");
-            for (int i = 0; i < studentCount; i++)
+            Console.WriteLine("--- Текущий список студентов ---");
+            for (int i = 0; i < count; i++)
             {
-                Console.WriteLine($"{students[i, 0]} {students[i, 1]}, Год рождения: {students[i, 2]}, Экзамен: {students[i, 3]}, Оценка: {students[i, 4]}");
+                Console.WriteLine($"[{i + 1}] {students[i, 0]} {students[i, 1]} | {students[i, 2]} г.р. | Экзамен: {students[i, 3]} | Баллы: {students[i, 4]}");
             }
+            if (count == 0) Console.WriteLine("Список пуст.");
         }
 
-        static bool Graph(Dictionary<int, List<int>> graph, int current, int finish, HashSet<int> visited, List<int> path)
+        static bool FindPath(Dictionary<int, List<int>> graph, int current, int target, HashSet<int> visited, List<int> path)
         {
             visited.Add(current);
             path.Add(current);
 
-            if (current == finish)
-            {
-                return true;
-            }
+            if (current == target) return true;
 
-            foreach (var neighbor in graph[current]) //перебирает всех соседей текущей вершины current в графе graph
+            foreach (var neighbor in graph[current])
             {
-                if (!visited.Contains(neighbor)) // посещен ли пункт
+                if (!visited.Contains(neighbor))
                 {
-                    if (Graph(graph, neighbor, finish, visited, path))
-                    {
-                        return true;
-                    }
+                    if (FindPath(graph, neighbor, target, visited, path)) return true;
                 }
             }
-            path.RemoveAt(path.Count - 1); // Удаляем последний элемент если путь не найден
+            path.RemoveAt(path.Count - 1);
             return false;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("#1");
-            string[] img = new string[]
+            // ЗАДАЧА 1
+            Console.WriteLine("Задание 1: Картинки");
+            string[] picturePaths = new string[]
             {
                 "C:\\Users\\User\\Desktop\\си шарпик\\1.avif\"",
                 "C:\\Users\\User\\Desktop\\си шарпик\\2.jpg\"",
@@ -160,21 +149,25 @@ namespace MyApp
                 "\"C:\\Users\\User\\Desktop\\си шарпик\\31.jpg\"",
                 "\"C:\\Users\\User\\Desktop\\си шарпик\\32.jpg\"",
             };
-            List<string> imageList = new List<string>();// для пар 
-            foreach (var url in img)
+
+            List<string> cardDeck = new List<string>();
+            foreach (string path in picturePaths)
             {
-                imageList.Add(url);
-                imageList.Add(url);
-            }
-            Shuffle(imageList);// перемешиваем список
-            Console.WriteLine("Перемешанный список:");
-            for (int i = 0; i < imageList.Count; i++)
-            {
-                Console.WriteLine($"{i}: {imageList[i]}");
+                cardDeck.Add(path);
+                cardDeck.Add(path);
             }
 
-            Console.WriteLine("#4");
-            Dictionary<int, List<int>> graph = new Dictionary<int, List<int>>()
+            Shuffle(cardDeck);
+
+            Console.WriteLine("Перемешанная колода:");
+            for (int i = 0; i < cardDeck.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {cardDeck[i]}");
+            }
+
+            // ЗАДАЧА 4
+            Console.WriteLine("\nЗадание 4: Поиск пути в графе");
+            Dictionary<int, List<int>> adjList = new Dictionary<int, List<int>>()
             {
                 { 0, new List<int> { 1, 2 } },
                 { 1, new List<int> { 0, 3, 4 } },
@@ -184,177 +177,138 @@ namespace MyApp
                 { 5, new List<int> { 2, 4 } }
             };
 
-            int start = 0;
-            int finish = 5;
-            List<int> path = new List<int>();
-            HashSet<int> visited = new HashSet<int>();
+            int startNode = 0;
+            int endNode = 5;
+            List<int> route = new List<int>();
+            HashSet<int> usedNodes = new HashSet<int>();
 
-
-            if (Graph(graph, start, finish, visited, path))
+            if (FindPath(adjList, startNode, endNode, usedNodes, route))
             {
-                Console.WriteLine("Путь найден: " + string.Join(" -> ", path));
+                Console.WriteLine("Найденный маршрут: " + string.Join(" -> ", route));
             }
             else
             {
-                Console.WriteLine("Путь не найден.");
+                Console.WriteLine("Маршрут не существует.");
             }
 
-            // --- 1. БОЛЬНИЦЫ ---
-            // Названия больниц
-            List<string> hospitalNames = new List<string> { "ГКБ №1 (Терапия)", "ГКБ №2 (Кардиология)", "ГКБ №3 (Хирургия)" };
+            // ЗАДАЧА 3
+            Console.WriteLine("\nЗадание 3: Распределение пожилых людей");
 
-            // Вместимость больниц (сколько мест)
-            List<int> hospitalCapacity = new List<int> { 2, 1, 3 };
+            List<string> clinicNames = new List<string> { "Госпиталь Св. Марии", "Клиника Здоровья", "Городской Травмпункт" };
+            List<int> bedsAvailable = new List<int> { 3, 1, 2 };
 
-            // Какие болезни лечат (Списки внутри списка)
-            List<List<string>> hospitalCures = new List<List<string>>();
-            hospitalCures.Add(new List<string> { "Грипп", "Простуда", "Ангина" });
-            hospitalCures.Add(new List<string> { "Давление", "Аритмия" });
-            hospitalCures.Add(new List<string> { "Перелом", "Аппендицит" });
+            List<List<string>> clinicSpecialization = new List<List<string>>();
+            clinicSpecialization.Add(new List<string> { "Ангина", "Остеохондроз", "Гастрит" });
+            clinicSpecialization.Add(new List<string> { "Мигрень", "Бессонница" });
+            clinicSpecialization.Add(new List<string> { "Вывих", "Ушиб" });
 
-            // Очереди пациентов в каждой больнице
-            List<Queue<string>> hospitalQueues = new List<Queue<string>>();
-            for (int i = 0; i < 3; i++) hospitalQueues.Add(new Queue<string>());
+            List<Queue<string>> clinicQueues = new List<Queue<string>>();
+            for (int i = 0; i < 3; i++) clinicQueues.Add(new Queue<string>());
 
+            Dictionary<string, List<string>> diagnoses = new Dictionary<string, List<string>>();
+            diagnoses.Add("Серафима Федоровна", new List<string> { "Гастрит" });
+            diagnoses.Add("Тамара Николаевна", new List<string> { "Мигрень", "Бессонница" });
+            diagnoses.Add("Евгения Павловна", new List<string> { "Ангина", "Вывих" });
+            diagnoses.Add("Ольга Дмитриевна", new List<string> { "Аллергия" });
 
-            // --- 2. БАБУШКИ ---
-            Dictionary<string, List<string>> grandmasIllnesses = new Dictionary<string, List<string>>();
-            grandmasIllnesses.Add("Клавдия Ивановна", new List<string> { "Грипп" });
-            grandmasIllnesses.Add("Зинаида Петровна", new List<string> { "Давление", "Аритмия" });
-            grandmasIllnesses.Add("Мария Сергеевна", new List<string> { "Грипп", "Перелом" });
-            grandmasIllnesses.Add("Анна Ахматова", new List<string> { "Кариес" });
+            Queue<string> streetWaiting = new Queue<string>();
+            streetWaiting.Enqueue("Серафима Федоровна");
+            streetWaiting.Enqueue("Тамара Николаевна");
+            streetWaiting.Enqueue("Евгения Павловна");
+            streetWaiting.Enqueue("Ольга Дмитриевна");
 
-            // Общая очередь бабушек на улице
-            Queue<string> streetQueue = new Queue<string>();
-            streetQueue.Enqueue("Клавдия Ивановна");
-            streetQueue.Enqueue("Зинаида Петровна");
-            streetQueue.Enqueue("Мария Сергеевна");
-            streetQueue.Enqueue("Анна Ахматова");
-
-            // --- 3. РАСПРЕДЕЛЕНИЕ ---
-            Console.WriteLine("=== НАЧАЛО РАСПРЕДЕЛЕНИЯ ===");
-
-            while (streetQueue.Count > 0)
+            Console.WriteLine("Начало распределения пациентов...");
+            while (streetWaiting.Count > 0)
             {
-                string currentGrandmaName = streetQueue.Dequeue(); // Берем бабушку
-                List<string> currentGrandmaIllnesses = grandmasIllnesses[currentGrandmaName]; // Достаем ее болезни по имени
+                string currentPerson = streetWaiting.Dequeue();
+                List<string> currentDiagnoses = diagnoses[currentPerson];
+                bool placed = false;
 
-                bool isPlaced = false;
-
-                // Идем по больницам
-                for (int i = 0; i < hospitalNames.Count; i++)
+                for (int i = 0; i < clinicNames.Count; i++)
                 {
-                    // 1. Проверяем, есть ли места
-                    if (hospitalQueues[i].Count < hospitalCapacity[i])
+                    if (clinicQueues[i].Count < bedsAvailable[i])
                     {
-                        // 2. Считаем, сколько болезней она может вылечить
-                        int curableCount = 0;
-                        for (int j = 0; j < currentGrandmaIllnesses.Count; j++)
+                        int matchedIllnesses = 0;
+                        foreach (string illness in currentDiagnoses)
                         {
-                            if (hospitalCures[i].Contains(currentGrandmaIllnesses[j]))
-                            {
-                                curableCount++;
-                            }
+                            if (clinicSpecialization[i].Contains(illness)) matchedIllnesses++;
                         }
-                        // Считаем процент
-                        double percent = (double)curableCount / currentGrandmaIllnesses.Count * 100;
 
-                        // 3. Если лечат 50% и более, кладем в очередь
-                        if (percent >= 50)
+                        double matchPercentage = (double)matchedIllnesses / currentDiagnoses.Count * 100;
+
+                        if (matchPercentage >= 50)
                         {
-                            hospitalQueues[i].Enqueue(currentGrandmaName);
-                            Console.WriteLine($"Бабушка {currentGrandmaName} направлена в {hospitalNames[i]}.");
-                            isPlaced = true;
-                            break; // Выходим из цикла больниц, бабушка пристроена
+                            clinicQueues[i].Enqueue(currentPerson);
+                            Console.WriteLine($"-> {currentPerson} направлена в {clinicNames[i]}.");
+                            placed = true;
+                            break;
                         }
                     }
                 }
 
-                if (!isPlaced)
+                if (!placed)
                 {
-                    Console.WriteLine($"Бабушке {currentGrandmaName} не подошла ни одна больница. Осталась на улице.");
+                    Console.WriteLine($"-> {currentPerson} не подошла ни одна клиника. Ожидает на улице.");
                 }
             }
 
-            Console.WriteLine("\n=== СТАТИСТИКА ПО БОЛЬНИЦАМ ===");
-            for (int i = 0; i < hospitalNames.Count; i++)
+            Console.WriteLine("\n--- Отчет по клиникам ---");
+            for (int i = 0; i < clinicNames.Count; i++)
             {
-                Console.WriteLine($"\n{hospitalNames[i]}:");
-                Console.WriteLine($"Заполненность: {hospitalQueues[i].Count} из {hospitalCapacity[i]} мест.");
-
-                if (hospitalQueues[i].Count > 0)
+                Console.WriteLine($"\n{clinicNames[i]}. Занято мест: {clinicQueues[i].Count} из {bedsAvailable[i]}");
+                foreach (string patient in clinicQueues[i])
                 {
-                    foreach (string patient in hospitalQueues[i])
+                    Console.Write($"   Пациент: {patient}. Диагнозы: ");
+                    foreach (string illness in diagnoses[patient])
                     {
-                        Console.Write($"- {patient}. Болезни: ");
-
-                        List<string> ills = grandmasIllnesses[patient];
-                        foreach (string ill in ills)
-                        {
-                            Console.Write(ill + " ");
-                        }
-                        Console.WriteLine();
+                        Console.Write(illness + " ");
                     }
+                    Console.WriteLine();
                 }
             }
 
-            // --- ЗАДАЧА 2 (СТУДЕНТЫ)---
-            Console.WriteLine("#2");
-            string[,] students = new string[100, 5]; // Массив для хранения информации о студентах
-            int studentCount = 0;
+            // ЗАДАЧА 2
+            Console.WriteLine("\nЗадание 2: Студенты");
+            string[,] studentData = new string[100, 5];
+            int totalStudents = 0;
+            bool running = true;
 
-            bool isContinue = true;
-            while (isContinue)
+            while (running)
             {
-                Console.WriteLine("Меню:");
-                Console.WriteLine("1. Новый студент");
-                Console.WriteLine("2. Удалить");
-                Console.WriteLine("3. Сортировать");
-                Console.WriteLine("4. Вывести всех студентов");
-                Console.WriteLine("5. Выход");
-                Console.Write("Выберите действие: ");
+                Console.WriteLine("\n[ Меню ]");
+                Console.WriteLine("1 - Добавить");
+                Console.WriteLine("2 - Удалить");
+                Console.WriteLine("3 - Отсортировать");
+                Console.WriteLine("4 - Показать всех");
+                Console.WriteLine("5 - Завершить");
+                Console.Write("Ваш выбор: ");
 
-                string choice = Console.ReadLine();
-                switch (choice)
+                string input = Console.ReadLine();
+                switch (input)
                 {
                     case "1":
+                        if (totalStudents < 100)
                         {
-                            if (studentCount < 100) // Проверка на переполнение массива
-                            {
-                                AddNewStudent(students, studentCount);
-                                studentCount++;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Достигнуто максимальное количество студентов.");
-                            }
-                            break;
+                            AddNewStudent(studentData, totalStudents);
+                            totalStudents++;
                         }
+                        else Console.WriteLine("-> База данных переполнена.");
+                        break;
                     case "2":
-                        {
-                            RemoveStudent(students, ref studentCount);
-                            break;
-                        }
+                        RemoveStudent(studentData, ref totalStudents);
+                        break;
                     case "3":
-                        {
-                            SortStudents(students, studentCount);
-                            break;
-                        }
+                        SortStudents(studentData, totalStudents);
+                        break;
                     case "4":
-                        {
-                            DisplayStudents(students, studentCount);
-                            break;
-                        }
+                        DisplayStudents(studentData, totalStudents);
+                        break;
                     case "5":
-                        {
-                            return;
-                        }
+                        running = false;
+                        break;
                     default:
-                        {
-                            Console.WriteLine("Число выходит за рамки");
-                            break;
-                        }
-
+                        Console.WriteLine("-> Неверный пункт меню.");
+                        break;
                 }
             }
         }
