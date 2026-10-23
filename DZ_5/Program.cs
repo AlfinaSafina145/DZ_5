@@ -1,38 +1,63 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 
-namespace Task1
+namespace Homework6_3
 {
     class Program
     {
         static void Main(string[] args)
         {
-            string fileName = args[0];
-            string text = File.ReadAllText(fileName);
-            char[] charArray = text.ToCharArray();
-            CountLetters(charArray);
-        }
-        static void CountLetters(char[] array)
-        {
-            int vowels = 0;
-            int consonants = 0;
-            for (int i = 0; i < array.Length; i++)
+            Dictionary<string, int[]> temperature = new Dictionary<string, int[]>();
+            Random ran = new Random();
+            string[] monthNames = { "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь","Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь" };
+            for (int i = 0; i < 12; i++)
             {
-                char currentChar = char.ToLower(array[i]);
-                if (char.IsLetter(currentChar))
+                int[] daysTemps = new int[30];
+                for (int j = 0; j < 30; j++)
                 {
-                    if ("аеёиоуыэюяaeiouy".Contains(currentChar))
-                    {
-                        vowels++;
-                    }
-                    else
-                    {
-                        consonants++;
-                    }
+                    daysTemps[j] = ran.Next(-35, 35);
                 }
+                temperature.Add(monthNames[i], daysTemps);
             }
-            Console.WriteLine($"Гласных букв: {vowels}");
-            Console.WriteLine($"Согласных букв: {consonants}");
+
+            int[] averageTemps = CalculateAverageTemperatures(temperature, monthNames);
+
+            Console.WriteLine("Средняя температура по месяцам:");
+            for (int i = 0; i < averageTemps.Length; i++)
+            {
+                Console.WriteLine($"{monthNames[i]}: {averageTemps[i]}");
+            }
+
+            int yearSum = 0;
+            for (int i = 0; i < averageTemps.Length; i++)
+            {
+                yearSum += averageTemps[i];
+            }
+            Console.WriteLine($"\nСредняя температура за год: {yearSum / 12}");
+            Array.Sort(averageTemps);
+            Console.WriteLine("\nОтсортированные средние температуры:");
+            for (int i = 0; i < averageTemps.Length; i++)
+            {
+                Console.Write(averageTemps[i] + " ");
+            }
+            Console.WriteLine();
+        }
+        static int[] CalculateAverageTemperatures(Dictionary<string, int[]> temps, string[] names)
+        {
+            int[] averages = new int[12];
+            for (int i = 0; i < 12; i++)
+            {
+                int[] currentMonth = temps[names[i]];
+                int sum = 0;
+
+                for (int j = 0; j < currentMonth.Length; j++)
+                {
+                    sum += currentMonth[j];
+                }
+
+                averages[i] = sum / 30;
+            }
+            return averages;
         }
     }
 }
