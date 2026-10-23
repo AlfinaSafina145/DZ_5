@@ -1,38 +1,88 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 
-namespace Task1
+namespace Homework6_2
 {
     class Program
     {
         static void Main(string[] args)
         {
-            string fileName = args[0];
-            string text = File.ReadAllText(fileName);
-            char[] charArray = text.ToCharArray();
-            CountLetters(charArray);
+            LinkedList<LinkedList<int>> matrixA = new LinkedList<LinkedList<int>>();
+            matrixA.AddLast(new LinkedList<int>(new int[] { 1, 2, 3 }));
+            matrixA.AddLast(new LinkedList<int>(new int[] { 4, 5, 6 }));
+
+            LinkedList<LinkedList<int>> matrixB = new LinkedList<LinkedList<int>>();
+            matrixB.AddLast(new LinkedList<int>(new int[] { 7, 8 }));
+            matrixB.AddLast(new LinkedList<int>(new int[] { 9, 10 }));
+            matrixB.AddLast(new LinkedList<int>(new int[] { 11, 12 }));
+
+            Console.WriteLine("Матрица A:");
+            PrintMatrix(matrixA);
+
+            Console.WriteLine("Матрица B:");
+            PrintMatrix(matrixB);
+
+            LinkedList<LinkedList<int>> result = MultiplyMatrices(matrixA, matrixB);
+
+            Console.WriteLine("Результат умножения:");
+            PrintMatrix(result);
+
+            Console.ReadKey();
         }
-        static void CountLetters(char[] array)
+
+        static void PrintMatrix(LinkedList<LinkedList<int>> matrix)
         {
-            int vowels = 0;
-            int consonants = 0;
-            for (int i = 0; i < array.Length; i++)
+            foreach (LinkedList<int> row in matrix)
             {
-                char currentChar = char.ToLower(array[i]);
-                if (char.IsLetter(currentChar))
+                foreach (int val in row)
                 {
-                    if ("аеёиоуыэюяaeiouy".Contains(currentChar))
-                    {
-                        vowels++;
-                    }
-                    else
-                    {
-                        consonants++;
-                    }
+                    Console.Write(val + "\t");
                 }
+                Console.WriteLine();
             }
-            Console.WriteLine($"Гласных букв: {vowels}");
-            Console.WriteLine($"Согласных букв: {consonants}");
+            Console.WriteLine();
+        }
+
+        static LinkedList<LinkedList<int>> MultiplyMatrices(LinkedList<LinkedList<int>> matA, LinkedList<LinkedList<int>> matB)
+        {
+            LinkedList<LinkedList<int>> result = new LinkedList<LinkedList<int>>();
+
+            int colsB = matB.First.Value.Count;
+
+            foreach (LinkedList<int> rowA in matA)
+            {
+                LinkedList<int> newRow = new LinkedList<int>();
+
+                for (int j = 0; j < colsB; j++)
+                {
+                    int sum = 0;
+
+                    LinkedListNode<int> nodeA = rowA.First;
+                    LinkedListNode<LinkedList<int>> rowB = matB.First;
+
+                    while (nodeA != null && rowB != null)
+                    {
+                        LinkedList<int> currentRowB = rowB.Value;
+                        LinkedListNode<int> numberB = currentRowB.First;
+
+                        for (int k = 0; k < j; k++)
+                        {
+                            numberB = numberB.Next;
+                        }
+
+                        sum += nodeA.Value * numberB.Value;
+
+                        nodeA = nodeA.Next;
+                        rowB = rowB.Next;
+                    }
+
+                    newRow.AddLast(sum);
+                }
+
+                result.AddLast(newRow);
+            }
+
+            return result;
         }
     }
 }
