@@ -298,7 +298,7 @@ namespace MyApp
                 }
             }
 
-            // --- ЗАДАЧА 2 (СТУДЕНТЫ) ПЕРЕНЕСЕНА В КОНЕЦ ---
+            // --- ЗАДАЧА 2 (СТУДЕНТЫ)---
             Console.WriteLine("#2");
             string[,] students = new string[100, 5]; // Массив для хранения информации о студентах
             int studentCount = 0;
